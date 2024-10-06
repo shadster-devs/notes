@@ -17,7 +17,7 @@ export const defaultEditorContent = {
 }
 
 const AddNote: React.FC = () => {
-    const {addNote,currentCategory,currentNotebook} = useNotes();
+    const {addNote,currentNotebook} = useNotes();
     const [isNewNoteDialogOpen, setIsNewNoteDialogOpen] = React.useState<boolean>(false);
     const [newNoteTitle, setNewNoteTitle] = React.useState<string>('');
 
@@ -26,16 +26,8 @@ const AddNote: React.FC = () => {
             toast.error(`Please select a notebook to add a note.`);
             return;
         }
-        if (!currentCategory) {
-            toast.error(`Please select a category to add a note.`);
-            return;
-        }
-        if (!currentNotebook.categories.length) {
-            toast.error(`Please add a category to the selected notebook to add a note.`);
-            return;
-        }
 
-        addNote(noteTitle, defaultEditorContent, currentNotebook.id, currentCategory.id);
+        addNote(noteTitle, defaultEditorContent, currentNotebook.id);
     };
 
 

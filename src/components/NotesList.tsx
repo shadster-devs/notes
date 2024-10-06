@@ -5,17 +5,15 @@ import { Input } from "@/components/ui/input";
 
 import { useNotes } from "@/contexts/NotesContext";
 import NotebookSelector from "./NotebookSelector";
-import CategorySelector from "./CategorySelector";
 import NoteCard from "./NoteCard";
 import AddNote from "@/components/AddNote";
 
 const NotesList: React.FC = () => {
-    const {  currentNotebook, currentCategory, notes } = useNotes(); // Use context functions and state
+    const {  currentNotebook, notes } = useNotes(); // Use context functions and state
     const [searchTerm, setSearchTerm] = useState<string>('');
 
     const filteredNotes = notes.filter(note =>
         note.notebook === currentNotebook?.id &&
-        note.category === currentCategory?.id &&
         note.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -37,7 +35,6 @@ const NotesList: React.FC = () => {
                     placeholder="Search notes..."
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <CategorySelector />
             </div>
 
             <div className={'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'}>
