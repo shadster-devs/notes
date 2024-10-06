@@ -1,3 +1,4 @@
+"use client"
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {Notebook, Note, Category} from "@/utils/types";
 import {JSONContent} from "novel";
@@ -21,14 +22,20 @@ type NotesContextType = {
     editCategory: (id: number, name: string) => void;
     deleteCategory: (id: number) => void;
     addNote: (title: string, content: JSONContent, notebookId: number, categoryId: number) => void;
-    editNote: (id: number, title: string, content: string) => void;
+    editNote: (id: number, title: string, content: JSONContent) => void;
     deleteNote: (id: number) => void;
 };
 
 // Default context state
 const NotesContext = createContext<NotesContextType | undefined>(undefined);
 
-export const NotesProvider: React.FC = ({ children }) => {
+interface NotesProviderProps {
+    children: React.ReactNode;
+}
+
+export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
+
+    const {children} = props;
 
     const [notebooks, setNotebooks] = useState<Notebook[]>(() => {
         if (typeof localStorage !== 'undefined') {
@@ -104,7 +111,7 @@ export const NotesProvider: React.FC = ({ children }) => {
 
     useEffect(() => {
         saveDataToLocalStorage();
-    }, [notebooks, categories, notes]);
+    }, [notebooks, categories, notes,saveDataToLocalStorage]);
 
     // Notebook operations
     const addNotebook = (name: string) => {
@@ -150,7 +157,7 @@ export const NotesProvider: React.FC = ({ children }) => {
         setNotes([...notes, newNote]);
     };
 
-    const editNote = (id: number, title: string, content: string) => {
+    const editNote = (id: number, title: string, content: JSONContent) => {
         setNotes(notes.map(note => (note.id === id ? { ...note, title, content } : note)));
     };
 

@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from 'react';
 
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,7 @@ const NotesList: React.FC = () => {
     return (
         <div className={'max-w-7xl mx-auto py-8'}>
             <div className={'flex justify-between items-center mb-6'}>
-                <h1 className={'text-2xl font-bold'}>My Notes</h1>
+                <span className={'text-2xl font-bold'}>My Notes</span>
                 <div className={'flex gap-2'}>
                     <NotebookSelector />
                     <AddNote />

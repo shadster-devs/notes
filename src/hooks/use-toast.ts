@@ -1,4 +1,4 @@
-import * as React from "react"
+import React from "react";
 
 import type {
   ToastActionElement,
@@ -14,6 +14,9 @@ type ToasterToast = ToastProps & {
   description?: React.ReactNode
   action?: ToastActionElement
 }
+
+//ignore this in eslint
+
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",

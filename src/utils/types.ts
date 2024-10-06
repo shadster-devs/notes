@@ -14,7 +14,7 @@ export type Category = {
 export type Note = {
     id: number
     title: string
-    content: JSONContent
+    content:JSONContent
     notebook: number
     category: number
 }

@@ -4,41 +4,38 @@ import {Plus} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {useNotes} from "@/contexts/NotesContext";
-import {useToast} from "@/hooks/use-toast";
+import {toast} from "sonner";
+
+export const defaultEditorContent = {
+    type: 'doc',
+    content: [
+        {
+            type: 'paragraph',
+            content: []
+        }
+    ]
+}
 
 const AddNote: React.FC = () => {
-    const { toast } = useToast();
     const {addNote,currentCategory,currentNotebook} = useNotes();
     const [isNewNoteDialogOpen, setIsNewNoteDialogOpen] = React.useState<boolean>(false);
     const [newNoteTitle, setNewNoteTitle] = React.useState<string>('');
 
     const handleAddNote = (noteTitle: string) => {
         if (!currentNotebook) {
-            toast({
-                title: "Select Notebook!",
-                description: "Please select a notebook to add a note.",
-                variant: "destructive"
-            });
+            toast.error(`Please select a notebook to add a note.`);
             return;
         }
         if (!currentCategory) {
-            toast({
-                title: "Select Category!",
-                description: "Please select a category to add a note.",
-                variant: "destructive"
-            });
+            toast.error(`Please select a category to add a note.`);
             return;
         }
         if (!currentNotebook.categories.length) {
-            toast({
-                title: "Add Category!",
-                description: "Please add a category to the selected notebook.",
-                variant: "destructive"
-            });
+            toast.error(`Please add a category to the selected notebook to add a note.`);
             return;
         }
 
-        addNote(noteTitle, 'Example content', currentNotebook.id, currentCategory.id);
+        addNote(noteTitle, defaultEditorContent, currentNotebook.id, currentCategory.id);
     };
 
 

@@ -11,7 +11,7 @@ import {
     AlertDialogHeader, AlertDialogTitle,
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-import {useRouter} from "next/router";
+import { useRouter } from "next/navigation"; // Use 'next/navigation' for App Router
 
 interface NoteCardProps {
     note: Note;
@@ -30,40 +30,40 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
         <Card key={note.id}>
             <CardHeader className={'p-3'}>
                 <div className={'flex items-center justify-between hover:bg-background'}>
-                    <Button variant='ghost' size='lg' title={'Open Note'} className={'flex-1 text-lg font-bold'}
-                    onClick={()=>{
-                        router.push(`/${note.id}`);
-                    }}
-
+                    <Button
+                        variant='ghost'
+                        size='lg'
+                        title={'Open Note'}
+                        className={'flex-1 text-lg font-bold'}
+                        onClick={() => {
+                            router.push(`/${note.id}`);
+                        }}
                     >
                         <span className={'truncate flex-grow text-left'}>
                             {note.title}
                         </span>
                     </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger>
-                        <Button variant="ghost" size="icon" title="Delete Note">
-                            <Trash2 size={16}/>
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className={'bg-accent text-primary'}>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your note.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete} className={'hover:bg-destructive'}>Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                    <AlertDialog>
+                        <AlertDialogTrigger className={'p-1'}>
+                                <Trash2 size={16} />
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className={'bg-accent text-primary'}>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your note.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete} className={'hover:bg-destructive'}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </CardHeader>
         </Card>
     );
-
 };
 
 export default NoteCard;

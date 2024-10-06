@@ -5,11 +5,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
-import { useNotes } from "@/contexts/NotesContext"; // Import context hook
+import { useNotes } from "@/contexts/NotesContext";
+import {toast} from "sonner"; // Import context hook
 
 const CategorySelector: React.FC = () => {
-    const { toast } = useToast();
+
     const { categories, addCategory, editCategory, deleteCategory, currentNotebook, currentCategory, setCurrentCategory } = useNotes();
 
     const [newCategoryName, setNewCategoryName] = useState<string>('');
@@ -22,66 +22,38 @@ const CategorySelector: React.FC = () => {
 
     const handleAddCategory = () => {
         if (!currentNotebook) {
-            toast({
-                title: "Select Notebook!",
-                description: "Please select a notebook to add a category.",
-                variant: "destructive"
-            });
+            toast.error(`Please select a notebook to add a category.`);
             return;
         }
 
         if (newCategoryName.trim() === '') {
-            toast({
-                title: "Invalid Name!",
-                description: "Category name can't be empty.",
-                variant: "destructive"
-            });
+            toast.error(`Category name can't be empty.`);
             return;
         }
         if (categories.some(cat => cat.name.toLowerCase() === newCategoryName.trim().toLowerCase())) {
-            toast({
-                title: "Duplicate Name!",
-                description: "A category with the same name already exists.",
-                variant: "destructive"
-            });
+            toast.error(`A category with this name already exists.`);
             return;
         }
 
         addCategory(currentNotebook!.id, newCategoryName.trim()); // Use context function
         setNewCategoryName('');
         setIsNewCategoryDialogOpen(false);
-        toast({
-            title: "Category Created",
-            description: `"${newCategoryName.trim()}" has been added.`,
-            variant: "default"
-        });
+        toast.info(`Category "${newCategoryName.trim()}" has been added.`);
     };
 
     const handleEditCategory = (categoryId: number, newName: string) => {
         if (newName.trim() === '') {
-            toast({
-                title: "Invalid Name!",
-                description: "Category name can't be empty.",
-                variant: "destructive"
-            });
+            toast.error(`Category name can't be empty.`);
             return;
         }
         if (categories.some(cat => cat.id !== categoryId && cat.name.toLowerCase() === newName.trim().toLowerCase())) {
-            toast({
-                title: "Duplicate Name!",
-                description: "A category with this name already exists.",
-                variant: "destructive"
-            });
+            toast.error(`A category with this name already exists.`);
             return;
         }
 
         editCategory(categoryId, newName.trim()); // Use context function
         setEditCategoryId(null);
-        toast({
-            title: "Category Updated",
-            description: `Category renamed to "${newName.trim()}".`,
-            variant: "default"
-        });
+        toast.info(`Category renamed to "${newName.trim()}".`);
     };
 
     const handleDeleteCategory = (categoryId: number) => {
@@ -89,11 +61,8 @@ const CategorySelector: React.FC = () => {
         if (currentCategory?.id === categoryId) {
             setCurrentCategory(null);
         }
-        toast({
-            title: "Category Deleted",
-            description: "The category has been removed.",
-            variant: "default"
-        });
+        toast.info(`The category has been removed.`);
+
     };
 
     return (

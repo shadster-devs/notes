@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, Edit2, Plus, Trash2, Check } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotes } from "@/contexts/NotesContext"; // Import the context hook
 import { Notebook } from "@/utils/types";
+import {toast} from "sonner";
 
 const NotebookSelector: React.FC = () => {
-    const { toast } = useToast();
     const { notebooks, addNotebook, editNotebook, deleteNotebook, setCurrentNotebook, currentNotebook } = useNotes();
 
     const [editNotebookId, setEditNotebookId] = useState<number | null>(null);
@@ -22,66 +21,38 @@ const NotebookSelector: React.FC = () => {
 
     const handleAddNotebook = useCallback(() => {
         if (newNotebookName.trim() === '') {
-            toast({
-                title: "Invalid Name",
-                description: "Notebook name can't be empty.",
-                variant: "destructive"
-            });
+            toast.error("Notebook name can't be empty.");
             return;
         }
         if (notebooks.some(nb => nb.name.toLowerCase() === newNotebookName.trim().toLowerCase())) {
-            toast({
-                title: "Duplicate Name",
-                description: "A notebook with this name already exists.",
-                variant: "destructive"
-            });
+            toast.error("A notebook with this name already exists.");
             return;
         }
 
         addNotebook(newNotebookName.trim()); // Use context function
         setNewNotebookName('');
         setIsNewNotebookDialogOpen(false);
-        toast({
-            title: "Notebook Created",
-            description: `"${newNotebookName.trim()}" has been added.`,
-            variant: "default"
-        });
+        toast.info(`Notebook "${newNotebookName.trim()}" has been added.`);
     }, [newNotebookName, notebooks, addNotebook, toast]);
 
     const handleEditNotebook = useCallback((notebook: Notebook, newName: string) => {
         if (newName.trim() === '') {
-            toast({
-                title: "Invalid Name",
-                description: "Notebook name can't be empty.",
-                variant: "destructive"
-            });
+            toast.error("Notebook name can't be empty.");
             return;
         }
         if (notebooks.some(nb => nb.id !== notebook.id && nb.name.toLowerCase() === newName.trim().toLowerCase())) {
-            toast({
-                title: "Duplicate Name",
-                description: "A notebook with this name already exists.",
-                variant: "destructive"
-            });
+            toast.error("A notebook with this name already exists.");
             return;
         }
 
         editNotebook(notebook.id, newName.trim()); // Use context function
         setEditNotebookId(null);
-        toast({
-            title: "Notebook Updated",
-            description: `Notebook renamed to "${newName.trim()}".`,
-            variant: "default"
-        });
+        toast.info(`Notebook renamed to "${newName.trim()}".`);
     }, [notebooks, editNotebook, toast]);
 
     const handleDeleteNotebook = useCallback((notebookId: number) => {
         deleteNotebook(notebookId); // Use context function
-        toast({
-            title: "Notebook Deleted",
-            description: "The notebook has been removed.",
-            variant: "default"
-        });
+        toast.info(`Notebook has been deleted.`);
     }, [deleteNotebook, toast]);
 
     const startEditing = useCallback((notebook: Notebook) => {
