@@ -1,12 +1,10 @@
 import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
-import { toast } from 'sonner'
 
 export const runtime = 'edge'
 
 export async function POST(req: Request) {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    toast.error("Missing BLOB_READ_WRITE_TOKEN")
     return new Response(
         "Missing BLOB_READ_WRITE_TOKEN. Don't forget to add that to your .env file.",
         {
@@ -27,9 +25,6 @@ export async function POST(req: Request) {
   const blob = await put(finalName, file, {
     contentType,
     access: 'public'
-  })
-  toast.success('File uploaded successfully', {
-    description: `File URL: ${blob.url}`,
   })
   return NextResponse.json(blob)
 }
