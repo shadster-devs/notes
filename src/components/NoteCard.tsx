@@ -47,8 +47,10 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                         <Star size={16} fill={note.isPinned ? 'hsl(var(--primary))' : 'none'} />
                     </Button>
                     <AlertDialog>
-                        <AlertDialogTrigger className={'p-1'}>
-                                <Trash2 size={16} />
+                        <AlertDialogTrigger  asChild>
+                            <Button variant='ghost' size='icon' className={'p-1'} >
+                                <Trash2 size={16}/>
+                            </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent className={'bg-accent text-primary'}>
                             <AlertDialogHeader>
