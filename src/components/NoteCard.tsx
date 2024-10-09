@@ -94,7 +94,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                             )}
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-full bg-white rounded-md shadow-md mt-2">
+                                    <DropdownMenuContent className="w-full bg-white rounded-md shadow-md">
                                         {notebooks.filter((nb)=>(
                                             nb.id !== note.notebook
                                         )).map((nb) => (
