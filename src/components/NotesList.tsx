@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from 'react'
-import {Search, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown} from 'lucide-react'
+import {Search, ChevronDown, ChevronUp, ArrowUp, ArrowDown} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Input } from "@/components/ui/input"
@@ -45,7 +45,7 @@ export default function NotesList() {
 
     function sortNotes(notesToSort : Note[]) {
         return notesToSort.sort((a, b) => {
-            if (sortBy === 'name') {
+            if (sortBy === 'title') {
                 return sortOrder === 'asc'
                     ? a.title.localeCompare(b.title)
                     : b.title.localeCompare(a.title)
