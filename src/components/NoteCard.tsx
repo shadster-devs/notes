@@ -83,8 +83,8 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="outline" className="w-full flex justify-between items-center">
                                             {moveNotebookId === 0 ? (
-                                                <span className="text-muted-foreground flex items-center">
-                                Select Notebook <ChevronDown size={16} className="ml-2" />
+                                                <span className="text-muted-foreground flex items-center justify-between w-full">
+                                {'Select Notebook'} <ChevronDown size={16} className="ml-2" />
                             </span>
                                             ) : (
                                                 <span className="flex items-center justify-between w-full">
@@ -95,7 +95,9 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-full bg-white rounded-md shadow-md mt-2">
-                                        {notebooks.map((nb) => (
+                                        {notebooks.filter((nb)=>(
+                                            nb.id !== note.notebook
+                                        )).map((nb) => (
                                             <DropdownMenuItem
                                                 key={nb.id}
                                                 className="flex items-center px-4 py-2 hover:bg-accent"
