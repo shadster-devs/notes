@@ -1,8 +1,9 @@
 "use client"
 import localFont from "next/font/local";
 import "./globals.css";
-import {NotesProvider} from "@/contexts/NotesContext";
+import {NotesProvider} from "@/contexts/NotesProvider";
 import {Toaster} from "@/components/ui/sonner";
+import {ThemeProvider} from "@/contexts/ThemeProvider";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -25,10 +26,15 @@ export default function RootLayout({
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-        <NotesProvider>
-
-            {children}
-        </NotesProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange>
+            <NotesProvider>
+                {children}
+            </NotesProvider>
+        </ThemeProvider>
         <Toaster position={'bottom-right'}/>
         </body>
         </html>

@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 
 import { Input } from "@/components/ui/input";
 
-import { useNotes } from "@/contexts/NotesContext";
+import { useNotes } from "@/contexts/NotesProvider";
 import NotebookSelector from "./NotebookSelector";
 import NoteCard from "./NoteCard";
 import AddNote from "@/components/AddNote";
+import {ThemeToggle} from "@/components/ThemeToggle";
 
 const NotesList: React.FC = () => {
     const {  currentNotebook, notes } = useNotes(); // Use context functions and state
@@ -21,7 +22,7 @@ const NotesList: React.FC = () => {
     return (
         <div className={'max-w-7xl mx-auto py-8'}>
             <div className={'flex justify-between items-center mb-6'}>
-                <span className={'text-2xl font-bold'}>My Notes</span>
+                <span className={'text-2xl font-bold'}>My Notes <ThemeToggle/></span>
                 <div className={'flex gap-2'}>
                     <NotebookSelector />
                     <AddNote />

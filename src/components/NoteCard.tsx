@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useNotes } from "@/contexts/NotesContext"; // Import context hook
+import { useNotes } from "@/contexts/NotesProvider"; // Import context hook
 import { Note } from "@/utils/types";
 import {
     AlertDialog,

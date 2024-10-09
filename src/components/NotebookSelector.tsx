@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotes } from "@/contexts/NotesContext"; // Import the context hook
+import { useNotes } from "@/contexts/NotesProvider"; // Import the context hook
 import { Notebook } from "@/utils/types";
 import {toast} from "sonner";
 

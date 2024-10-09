@@ -3,7 +3,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@
 import {Plus} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {useNotes} from "@/contexts/NotesContext";
+import {useNotes} from "@/contexts/NotesProvider";
 import {toast} from "sonner";
 
 export const defaultEditorContent = {
