@@ -11,4 +11,5 @@ export type Note = {
     title: string
     content:JSONContent
     notebook: number
+    createdAtUnixTs: number
 }

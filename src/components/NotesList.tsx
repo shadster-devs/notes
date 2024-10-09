@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState } from 'react'
-import { Search, ChevronDown, ChevronUp } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import {Search, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Input } from "@/components/ui/input"
@@ -9,27 +9,53 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { useNotes } from "@/contexts/NotesProvider"
 import NotebookSelector from "./NotebookSelector"
 import NoteCard from "./NoteCard"
 import AddNote from "@/components/AddNote"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import {Note} from "@/utils/types";
 
 export default function NotesList() {
     const { currentNotebook, notes } = useNotes()
     const [searchTerm, setSearchTerm] = useState<string>('')
     const [isPinnedExpanded, setIsPinnedExpanded] = useState(true)
     const [showAllPinned, setShowAllPinned] = useState(false)
+    const [sortBy, setSortBy] = useState<'title' | 'createdAt'>('createdAt')
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-    const pinnedNotes = showAllPinned
-        ? notes.filter(note => note.isPinned)
-        : notes.filter(note => note.notebook === currentNotebook?.id && note.isPinned)
+    const pinnedNotes = useMemo(() => {
+        const filtered = showAllPinned
+            ? notes.filter(note => note.isPinned)
+            : notes.filter(note => note.notebook === currentNotebook?.id && note.isPinned)
 
-    const filteredNotes = notes.filter(note =>
-        note.notebook === currentNotebook?.id &&
-        note.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+        return sortNotes(filtered)
+    }, [notes, showAllPinned, currentNotebook, sortBy, sortOrder])
+
+    const filteredNotes = useMemo(() => {
+        const filtered = notes.filter(note =>
+            note.notebook === currentNotebook?.id &&
+            note.title.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+
+        return sortNotes(filtered)
+    }, [notes, currentNotebook, searchTerm, sortBy, sortOrder])
+
+    function sortNotes(notesToSort : Note[]) {
+        return notesToSort.sort((a, b) => {
+            if (sortBy === 'name') {
+                return sortOrder === 'asc'
+                    ? a.title.localeCompare(b.title)
+                    : b.title.localeCompare(a.title)
+            } else {
+                return sortOrder === 'asc'
+                    ? new Date(a.createdAtUnixTs).getTime() - new Date(b.createdAtUnixTs).getTime()
+                    : new Date(b.createdAtUnixTs).getTime() - new Date(a.createdAtUnixTs).getTime()
+            }
+        })
+    }
 
     return (
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -42,15 +68,39 @@ export default function NotesList() {
                 </div>
             </div>
 
-            <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                    type="text"
-                    value={searchTerm}
-                    placeholder="Search notes..."
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                />
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div className="relative flex-grow">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="text"
+                        value={searchTerm}
+                        placeholder="Search notes..."
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                    />
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'title' | 'createdAt')}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="title">Title</SelectItem>
+                            <SelectItem value="createdAt">Date Created</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                    >
+                        {
+                            sortOrder === 'asc'
+                                ? <ArrowUp className="h-4 w-4" />
+                                : <ArrowDown className="h-4 w-4" />
+                        }
+                    </Button>
+                </div>
             </div>
 
             {pinnedNotes.length > 0 && searchTerm === "" && (
@@ -62,7 +112,7 @@ export default function NotesList() {
                             onClick={() => setIsPinnedExpanded(!isPinnedExpanded)}
                         >
                             <span className="text-xl font-semibold mr-2">Pinned Notes</span>
-                            <span className="text-muted-foreground text-sm">{pinnedNotes.length}</span>
+                            <span className="text-muted-foreground text-sm transform translate-y-0.5">{pinnedNotes.length}</span>
                             {isPinnedExpanded ? <ChevronUp className="h-5 w-5 ml-2"/> : <ChevronDown className="h-5 w-5 ml-2" />}
                         </Button>
                         <div className="flex items-center space-x-2">

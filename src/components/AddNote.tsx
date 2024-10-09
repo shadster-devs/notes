@@ -27,7 +27,7 @@ const AddNote: React.FC = () => {
             return;
         }
 
-        addNote(noteTitle, defaultEditorContent, currentNotebook.id);
+        addNote(noteTitle, defaultEditorContent, currentNotebook.id, new Date().getTime());
     };
 
 

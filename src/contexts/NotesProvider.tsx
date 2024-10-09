@@ -16,7 +16,7 @@ type NotesContextType = {
     deleteNotebook: (id: number) => void;
 
     pinNote: (id: number) => void;
-    addNote: (title: string, content: JSONContent, notebookId: number) => void;
+    addNote: (title: string, content: JSONContent, notebookId: number, createdAtUnixTs: number) => void;
     editNote: (id: number, title: string, content: JSONContent) => void;
     deleteNote: (id: number) => void;
 };
@@ -111,8 +111,8 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
     };
 
     // Note operations
-    const addNote = (title: string, content:JSONContent, notebookId: number) => {
-        const newNote = { id: notes.length + 1, title, content, notebook: notebookId};
+    const addNote = (title: string, content:JSONContent, notebookId: number,createdAtUnixTs : number) => {
+        const newNote = { id: notes.length + 1, title, content, notebook: notebookId, createdAtUnixTs};
         setNotes([...notes, newNote]);
     };
 
