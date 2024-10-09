@@ -71,7 +71,7 @@ export default function NotesList() {
                                 checked={showAllPinned}
                                 onCheckedChange={setShowAllPinned}
                             />
-                            <Label htmlFor="show-all-pinned">All Notebooks</Label>
+                            <Label htmlFor="show-all-pinned">{showAllPinned ? "All Notebooks" : "Only " + currentNotebook?.name}</Label>
                         </div>
                     </div>
                     <AnimatePresence>
