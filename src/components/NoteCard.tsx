@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card, CardFooter, CardHeader} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {Star, Trash2} from "lucide-react";
+import {ChevronDown, Move, Star, Trash2} from "lucide-react";
 import { useNotes } from "@/contexts/NotesProvider"; // Import context hook
 import { Note } from "@/utils/types";
 import {
@@ -12,20 +12,29 @@ import {
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"; // Use 'next/navigation' for App Router
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 interface NoteCardProps {
     note: Note;
 }
 
 const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
-    const { deleteNote , pinNote} = useNotes();
+    const { deleteNote , pinNote, moveNote, notebooks} = useNotes();
 
     const router = useRouter();
 
     const handleDelete = () => {
         deleteNote(note.id);
     };
+
+    const [isMoveNoteDialogOpen, setIsMoveNoteDialogOpen] = React.useState<boolean>(false);
+    const [moveNotebookId, setMoveNotebookId] = React.useState<number>(0);
 
     return (
         <Card key={note.id}>
@@ -56,6 +65,61 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                     <Button variant='ghost' size='icon' className={'p-1'} onClick={()=>pinNote(note.id)}>
                         <Star size={16} fill={note.isPinned ? 'hsl(var(--primary))' : 'none'} />
                     </Button>
+
+
+                    <Dialog open={isMoveNoteDialogOpen} onOpenChange={setIsMoveNoteDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="p-1">
+                                <Move size={16} />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-accent text-primary p-6 rounded-lg">
+                            <DialogHeader>
+                                <DialogTitle className="text-lg font-semibold">Move Note To</DialogTitle>
+                            </DialogHeader>
+
+                            <div className="mt-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" className="w-full flex justify-between items-center">
+                                            {moveNotebookId === 0 ? (
+                                                <span className="text-muted-foreground flex items-center">
+                                Select Notebook <ChevronDown size={16} className="ml-2" />
+                            </span>
+                                            ) : (
+                                                <span className="flex items-center justify-between w-full">
+                                {notebooks.find((nb) => nb.id === moveNotebookId)?.name}
+                                                    <ChevronDown size={16} className="ml-2" />
+                            </span>
+                                            )}
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-full bg-white rounded-md shadow-md mt-2">
+                                        {notebooks.map((nb) => (
+                                            <DropdownMenuItem
+                                                key={nb.id}
+                                                className="flex items-center px-4 py-2 hover:bg-accent"
+                                                onSelect={() => setMoveNotebookId(nb.id)}
+                                            >
+                                                {nb.name}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+
+                            <DialogFooter>
+                                <Button  onClick={() => {
+                                    moveNote(note.id, moveNotebookId);
+                                    setIsMoveNoteDialogOpen(false);
+                                }} className="w-full p-2 mt-4">
+                                    Move
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+
                     <AlertDialog>
                         <AlertDialogTrigger  asChild>
                             <Button variant='ghost' size='icon' className={'p-1'} >

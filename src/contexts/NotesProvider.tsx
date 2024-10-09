@@ -16,6 +16,7 @@ type NotesContextType = {
     deleteNotebook: (id: number) => void;
 
     pinNote: (id: number) => void;
+    moveNote: (id: number, notebookId: number) => void;
     addNote: (title: string, content: JSONContent, notebookId: number, createdAtUnixTs: number) => void;
     editNote: (id: number, title: string, content: JSONContent) => void;
     deleteNote: (id: number) => void;
@@ -124,6 +125,10 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
         setNotes(notes.filter(note => note.id !== id));
     };
 
+    const moveNote = (id: number, notebookId: number) => {
+        setNotes(notes.map(note => (note.id === id ? { ...note, notebook: notebookId } : note)));
+    };
+
     return (
         <NotesContext.Provider value={{
         notebooks,
@@ -138,7 +143,8 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
             addNote,
             editNote,
             deleteNote,
-            pinNote
+            pinNote,
+            moveNote
     }}>
     {children}
     </NotesContext.Provider>
