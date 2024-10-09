@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import {Star, Trash2} from "lucide-react";
 import { useNotes } from "@/contexts/NotesProvider"; // Import context hook
 import { Note } from "@/utils/types";
 import {
@@ -18,7 +18,7 @@ interface NoteCardProps {
 }
 
 const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
-    const { deleteNote } = useNotes();
+    const { deleteNote , pinNote} = useNotes();
 
     const router = useRouter();
 
@@ -42,6 +42,9 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                         <span className={'truncate flex-grow text-left'}>
                             {note.title}
                         </span>
+                    </Button>
+                    <Button variant='ghost' size='icon' className={'p-1'} onClick={()=>pinNote(note.id)}>
+                        <Star size={16} fill={note.isPinned ? 'hsl(var(--primary))' : 'none'} />
                     </Button>
                     <AlertDialog>
                         <AlertDialogTrigger className={'p-1'}>

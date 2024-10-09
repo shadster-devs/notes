@@ -15,6 +15,9 @@ type NotesContextType = {
     editNotebook: (id: number, name: string) => void;
     deleteNotebook: (id: number) => void;
 
+    getPinnedNotes: ( notebook: Notebook | null) => Note[];
+    pinNote: (id: number) => void;
+
     addNote: (title: string, content: JSONContent, notebookId: number) => void;
     editNote: (id: number, title: string, content: JSONContent) => void;
     deleteNote: (id: number) => void;
@@ -48,6 +51,14 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
     const [source, setSource] = useState<'localStorage' | 'mongo'>('localStorage');
 
     const [currentNotebook, setCurrentNotebook] = useState<Notebook | null>(null);
+
+    const getPinnedNotes = (notebook: Notebook | null) => {
+        return notes.filter(note => note.notebook === notebook?.id && note.isPinned);
+    }
+
+    const pinNote = (id: number) => {
+        setNotes(notes.map(note => (note.id === id ? { ...note, isPinned: !note.isPinned } : note)));
+    }
 
     // Function to load data based on source setting
     const loadData = useCallback(() => {
@@ -132,7 +143,9 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
             deleteNotebook,
             addNote,
             editNote,
-            deleteNote
+            deleteNote,
+            getPinnedNotes,
+            pinNote
     }}>
     {children}
     </NotesContext.Provider>

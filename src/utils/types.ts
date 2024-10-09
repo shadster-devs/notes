@@ -7,6 +7,7 @@ export type Notebook = {
 
 export type Note = {
     id: number
+    isPinned?: boolean
     title: string
     content:JSONContent
     notebook: number

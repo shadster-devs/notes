@@ -15,9 +15,6 @@ export default function NotePage() {
     const params = useParams(); // Get the route parameters
     const { notes,editNote } = useNotes();
 
-
-
-
     const [note, setNote] = useState<Note | null>(null);
 
     // Parse noteId from params (assuming it’s a string)
