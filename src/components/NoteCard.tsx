@@ -166,7 +166,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                 </div>
             </CardHeader>
             <CardFooter className="p-3 justify-end">
-                <p className="text-muted-foreground text-sm">
+                <p className="text-foreground text-sm font-bold">
                     {new Date(note.createdAtUnixTs).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
