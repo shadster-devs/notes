@@ -110,11 +110,11 @@ const NotebookSelector: React.FC = () => {
                     {notebooks.map(notebook => (
                         <DropdownMenuItem
                             key={notebook.id}
-                            className="flex items-center justify-between p-2 hover:bg-background"
+                            className="flex items-center justify-between p-2 focus:bg-background"
                             onSelect={(e) => e.preventDefault()}
                         >
                             <div
-                                className="flex items-center flex-grow truncate mr-2 cursor-pointer"
+                                className="flex items-center flex-grow truncate mr-2 cursor-pointer hover:bg-accent p-2 rounded"
                                 onClick={() => {
                                     setCurrentNotebook(notebook);
                                     setIsDropdownOpen(false);
@@ -168,7 +168,7 @@ const NotebookSelector: React.FC = () => {
                             <div className="mt-4">
                                 <label className="block mb-2">Select Color:</label>
                                 <HexColorPicker
-                                    color={editingNotebook.color}
+                                    color={editingNotebook.color || ""}
                                     onChange={(color) => setEditingNotebook({ ...editingNotebook, color } as Notebook)}
                                 />
                             </div>
