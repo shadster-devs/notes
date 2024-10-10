@@ -57,7 +57,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     return (
         <Card
             key={note.id}
-            style={{ backgroundColor: hexToRgba(backgroundColor, 0.07) }}
+            style={{ backgroundColor: hexToRgba(backgroundColor, 0.20) }}
         >
             <CardHeader className={'p-3 rounded overflow-hidden'}>
                 <div className={'flex items-center justify-between rounded-md overflow-hidden'}>
@@ -116,7 +116,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                             )}
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-full bg-white rounded-md shadow-md">
+                                    <DropdownMenuContent className="w-full text-primary rounded-md shadow-md">
                                         {notebooks.filter((nb)=>(
                                             nb.id !== note.notebook
                                         )).map((nb) => (

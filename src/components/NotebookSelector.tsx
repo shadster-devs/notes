@@ -70,7 +70,7 @@ const NotebookSelector: React.FC = () => {
                 <Button variant="outline" className="w-full justify-between">
                     {currentNotebook ? (
                         <div className="flex items-center">
-                            <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: currentNotebook.color }} />
+                            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: currentNotebook.color }} />
                             {currentNotebook.name}
                         </div>
                     ) : 'Select Notebook'}
@@ -121,7 +121,7 @@ const NotebookSelector: React.FC = () => {
                                 }}
                                 title={notebook.name}
                             >
-                                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: notebook.color }} />
+                                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: notebook.color }} />
                                 <span>{notebook.name}</span>
                             </div>
                             <div className="flex-shrink-0 space-x-1">
