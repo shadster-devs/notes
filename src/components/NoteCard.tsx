@@ -57,7 +57,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     return (
         <Card
             key={note.id}
-            style={{ backgroundColor: hexToRgba(backgroundColor, 0.03) }}
+            style={{ backgroundColor: hexToRgba(backgroundColor, 0.07) }}
         >
             <CardHeader className={'p-3 rounded overflow-hidden'}>
                 <div className={'flex items-center justify-between rounded-md overflow-hidden'}>
