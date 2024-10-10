@@ -40,7 +40,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
 
     const backgroundColor = notebook?.color || 'var(--bg-secondary)';
 
-    const hexToRgba = (hex, alpha = 1) => {
+    const hexToRgba = (hex: string, alpha = 1) => {
         let r = 0, g = 0, b = 0;
         if (hex.length === 4) {
             r = parseInt(hex[1] + hex[1], 16);
