@@ -36,10 +36,31 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
     const [isMoveNoteDialogOpen, setIsMoveNoteDialogOpen] = React.useState<boolean>(false);
     const [moveNotebookId, setMoveNotebookId] = React.useState<number>(0);
 
+    const notebook = notebooks.find((nb)=>nb.id === note.notebook);
+
+    const backgroundColor = notebook?.color || 'var(--bg-secondary)';
+
+    const hexToRgba = (hex, alpha = 1) => {
+        let r = 0, g = 0, b = 0;
+        if (hex.length === 4) {
+            r = parseInt(hex[1] + hex[1], 16);
+            g = parseInt(hex[2] + hex[2], 16);
+            b = parseInt(hex[3] + hex[3], 16);
+        } else if (hex.length === 7) {
+            r = parseInt(hex[1] + hex[2], 16);
+            g = parseInt(hex[3] + hex[4], 16);
+            b = parseInt(hex[5] + hex[6], 16);
+        }
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     return (
-        <Card key={note.id}>
-            <CardHeader className={'p-3'}>
-                <div className={'flex items-center justify-between hover:bg-background'}>
+        <Card
+            key={note.id}
+            style={{ backgroundColor: hexToRgba(backgroundColor, 0.03) }}
+        >
+            <CardHeader className={'p-3 rounded overflow-hidden'}>
+                <div className={'flex items-center justify-between rounded-md overflow-hidden'}>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -47,11 +68,12 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                     variant='ghost'
                                     size='lg'
                                     title={'Open Note'}
-                                    className={'flex-1 text-lg font-bold justify-start px-2 truncate'}
+                                    className={'flex-1 text-lg font-bold justify-start px-2 truncate hover:border-2'}
                                     onClick={() => {
                                         router.push(`/${note.id}`);
                                     }}
                                 >
+                                    <div className={'w-3 h-3 rounded-full mr-2'} style={{backgroundColor: backgroundColor}}/>
                                     <span className={'truncate flex-grow text-left'}>
                                         {note.title}
                                     </span>
@@ -62,14 +84,14 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <Button variant='ghost' size='icon' className={'p-1'} onClick={()=>pinNote(note.id)}>
+                    <Button variant='ghost' size='icon' className={`p-1 hover:border-2`} onClick={()=>pinNote(note.id)}>
                         <Star size={16} fill={note.isPinned ? 'hsl(var(--primary))' : 'none'} />
                     </Button>
 
 
                     <Dialog open={isMoveNoteDialogOpen} onOpenChange={setIsMoveNoteDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="p-1">
+                            <Button variant="ghost" size="icon" className="p-1 hover:border-2">
                                 <Move size={16} />
                             </Button>
                         </DialogTrigger>
@@ -124,7 +146,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
 
                     <AlertDialog>
                         <AlertDialogTrigger  asChild>
-                            <Button variant='ghost' size='icon' className={'p-1'} >
+                            <Button variant='ghost' size='icon' className={'p-1 hover:border-2'} >
                                 <Trash2 size={16}/>
                             </Button>
                         </AlertDialogTrigger>

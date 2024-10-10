@@ -11,8 +11,8 @@ type NotesContextType = {
 
     currentNotebook: Notebook | null;
     setCurrentNotebook: (notebook: Notebook |  null) => void;
-    addNotebook: (name: string) => void;
-    editNotebook: (id: number, name: string) => void;
+    addNotebook: (name: string, color : string) => void;
+    editNotebook: (id: number, name: string, color : string) => void;
     deleteNotebook: (id: number) => void;
 
     pinNote: (id: number) => void;
@@ -97,13 +97,13 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
     }, [notebooks, notes,saveDataToLocalStorage]);
 
     // Notebook operations
-    const addNotebook = (name: string) => {
-        const newNotebook = { id: notebooks.length + 1, name };
+    const addNotebook = (name: string, color: string) => {
+        const newNotebook = { id: notebooks.length + 1, name ,color};
         setNotebooks([...notebooks, newNotebook]);
     };
 
-    const editNotebook = (id: number, name: string) => {
-        setNotebooks(notebooks.map(nb => (nb.id === id ? { ...nb, name } : nb)));
+    const editNotebook = (id: number, name: string, color: string) => {
+        setNotebooks(notebooks.map(nb => (nb.id === id ? { ...nb, name,color } : nb)));
     };
 
     const deleteNotebook = (id: number) => {

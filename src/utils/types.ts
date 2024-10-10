@@ -3,6 +3,7 @@ import {JSONContent} from "novel";
 export type Notebook = {
     id: number;
     name: string;
+    color?: string;
 }
 
 export type Note = {

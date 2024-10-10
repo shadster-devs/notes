@@ -1,23 +1,24 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Edit2, Plus, Trash2, Check } from "lucide-react";
+import { ChevronDown, Edit2, Plus, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotes } from "@/contexts/NotesProvider"; // Import the context hook
+import { useNotes } from "@/contexts/NotesProvider";
 import { Notebook } from "@/utils/types";
-import {toast} from "sonner";
+import { toast } from "sonner";
+import { HexColorPicker } from "react-colorful";
 
 const NotebookSelector: React.FC = () => {
     const { notebooks, addNotebook, editNotebook, deleteNotebook, setCurrentNotebook, currentNotebook } = useNotes();
 
-    const [editNotebookId, setEditNotebookId] = useState<number | null>(null);
-    const [editedName, setEditedName] = useState<string>('');
+    const [editingNotebook, setEditingNotebook] = useState<Notebook | null>(null);
     const [newNotebookName, setNewNotebookName] = useState<string>('');
+    const [newNotebookColor, setNewNotebookColor] = useState<string>('#FF0000');
     const [isNewNotebookDialogOpen, setIsNewNotebookDialogOpen] = useState<boolean>(false);
+    const [isEditNotebookDialogOpen, setIsEditNotebookDialogOpen] = useState<boolean>(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-    const editInputRef = useRef<HTMLInputElement>(null!);
 
     const handleAddNotebook = useCallback(() => {
         if (newNotebookName.trim() === '') {
@@ -29,43 +30,50 @@ const NotebookSelector: React.FC = () => {
             return;
         }
 
-        addNotebook(newNotebookName.trim()); // Use context function
+        addNotebook(newNotebookName.trim(), newNotebookColor);
         setNewNotebookName('');
+        setNewNotebookColor('#FF0000');
         setIsNewNotebookDialogOpen(false);
         toast.info(`Notebook "${newNotebookName.trim()}" has been added.`);
-    }, [newNotebookName, notebooks, addNotebook, toast]);
+    }, [newNotebookName, newNotebookColor, notebooks, addNotebook]);
 
-    const handleEditNotebook = useCallback((notebook: Notebook, newName: string) => {
-        if (newName.trim() === '') {
+    const handleEditNotebook = useCallback(() => {
+        if (!editingNotebook) return;
+
+        if (editingNotebook.name.trim() === '') {
             toast.error("Notebook name can't be empty.");
             return;
         }
-        if (notebooks.some(nb => nb.id !== notebook.id && nb.name.toLowerCase() === newName.trim().toLowerCase())) {
+        if (notebooks.some(nb => nb.id !== editingNotebook.id && nb.name.toLowerCase() === editingNotebook.name.trim().toLowerCase())) {
             toast.error("A notebook with this name already exists.");
             return;
         }
 
-        editNotebook(notebook.id, newName.trim()); // Use context function
-        setEditNotebookId(null);
-        toast.info(`Notebook renamed to "${newName.trim()}".`);
-    }, [notebooks, editNotebook, toast]);
+        editNotebook(editingNotebook.id, editingNotebook.name.trim(), editingNotebook.color|| "");
+        setIsEditNotebookDialogOpen(false);
+        toast.info(`Notebook updated successfully.`);
+    }, [editingNotebook, notebooks, editNotebook]);
 
     const handleDeleteNotebook = useCallback((notebookId: number) => {
-        deleteNotebook(notebookId); // Use context function
+        deleteNotebook(notebookId);
         toast.info(`Notebook has been deleted.`);
-    }, [deleteNotebook, toast]);
+    }, [deleteNotebook]);
 
     const startEditing = useCallback((notebook: Notebook) => {
-        setEditNotebookId(notebook.id);
-        setEditedName(notebook.name);
-        setTimeout(() => editInputRef.current?.focus(), 0);
+        setEditingNotebook({ ...notebook });
+        setIsEditNotebookDialogOpen(true);
     }, []);
 
     return (
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
-                    {currentNotebook ? currentNotebook.name : 'Select Notebook'}
+                    {currentNotebook ? (
+                        <div className="flex items-center">
+                            <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: currentNotebook.color }} />
+                            {currentNotebook.name}
+                        </div>
+                    ) : 'Select Notebook'}
                     <ChevronDown className="ml-2" size={16} />
                 </Button>
             </DropdownMenuTrigger>
@@ -77,7 +85,7 @@ const NotebookSelector: React.FC = () => {
                             Add New Notebook
                         </DropdownMenuItem>
                     </DialogTrigger>
-                    <DialogContent className={"bg-accent text-primary"}>
+                    <DialogContent className="bg-accent text-primary">
                         <DialogHeader>
                             <DialogTitle>Create New Notebook</DialogTitle>
                         </DialogHeader>
@@ -88,6 +96,10 @@ const NotebookSelector: React.FC = () => {
                             placeholder="Enter notebook name"
                             className="mt-2"
                         />
+                        <div className="mt-4">
+                            <label className="block mb-2">Select Color:</label>
+                            <HexColorPicker color={newNotebookColor} onChange={setNewNotebookColor} />
+                        </div>
                         <Button onClick={handleAddNotebook} className="mt-4">Create Notebook</Button>
                     </DialogContent>
                 </Dialog>
@@ -101,70 +113,70 @@ const NotebookSelector: React.FC = () => {
                             className="flex items-center justify-between p-2 hover:bg-background"
                             onSelect={(e) => e.preventDefault()}
                         >
-                            {editNotebookId === notebook.id ? (
-                                <div className="flex items-center w-full space-x-2">
-                                    <Input
-                                        ref={editInputRef}
-                                        type="text"
-                                        value={editedName}
-                                        onChange={(e) => setEditedName(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                handleEditNotebook(notebook, editedName);
-                                            } else if (e.key === 'Escape') {
-                                                setEditNotebookId(null);
-                                            }
-                                        }}
-                                        className="flex-grow"
-                                    />
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleEditNotebook(notebook, editedName)}
-                                    >
-                                        <Check size={16} />
-                                    </Button>
-                                </div>
-                            ) : (
-                                <>
-                                    <span
-                                        className="flex-grow truncate mr-2 cursor-pointer"
-                                        onClick={() => {
-                                            setCurrentNotebook(notebook);
-                                            setIsDropdownOpen(false);
-                                        }}
-                                        title={notebook.name}
-                                    >
-                                        {notebook.name}
-                                    </span>
-                                    <div className="flex-shrink-0 space-x-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                startEditing(notebook);
-                                            }}
-                                        >
-                                            <Edit2 size={16} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteNotebook(notebook.id);
-                                            }}
-                                        >
-                                            <Trash2 size={16} />
-                                        </Button>
-                                    </div>
-                                </>
-                            )}
+                            <div
+                                className="flex items-center flex-grow truncate mr-2 cursor-pointer"
+                                onClick={() => {
+                                    setCurrentNotebook(notebook);
+                                    setIsDropdownOpen(false);
+                                }}
+                                title={notebook.name}
+                            >
+                                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: notebook.color }} />
+                                <span>{notebook.name}</span>
+                            </div>
+                            <div className="flex-shrink-0 space-x-1">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        startEditing(notebook);
+                                    }}
+                                >
+                                    <Edit2 size={16} />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteNotebook(notebook.id);
+                                    }}
+                                >
+                                    <Trash2 size={16} />
+                                </Button>
+                            </div>
                         </DropdownMenuItem>
                     ))}
                 </ScrollArea>
             </DropdownMenuContent>
+
+            <Dialog open={isEditNotebookDialogOpen} onOpenChange={setIsEditNotebookDialogOpen}>
+                <DialogContent className="bg-accent text-primary">
+                    <DialogHeader>
+                        <DialogTitle>Edit Notebook</DialogTitle>
+                    </DialogHeader>
+                    {editingNotebook && (
+                        <>
+                            <Input
+                                type="text"
+                                value={editingNotebook.name}
+                                onChange={(e) => setEditingNotebook({ ...editingNotebook, name: e.target.value } as Notebook)}
+                                placeholder="Enter notebook name"
+                                className="mt-2"
+                            />
+                            <div className="mt-4">
+                                <label className="block mb-2">Select Color:</label>
+                                <HexColorPicker
+                                    color={editingNotebook.color}
+                                    onChange={(color) => setEditingNotebook({ ...editingNotebook, color } as Notebook)}
+                                />
+                            </div>
+                            <Button onClick={handleEditNotebook} className="mt-4">Update Notebook</Button>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
         </DropdownMenu>
     );
 };
