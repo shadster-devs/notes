@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from 'react'
-import {Search, ChevronDown, ChevronUp, ArrowUp, ArrowDown} from 'lucide-react'
+import {Search, ChevronDown, ChevronUp, ArrowUp, ArrowDown, LogIn} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,7 @@ import NoteCard from "./NoteCard"
 import AddNote from "@/components/AddNote"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import {Note} from "@/utils/types";
+import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 
 export default function NotesList() {
     const { currentNotebook, notes } = useNotes()
@@ -60,11 +61,24 @@ export default function NotesList() {
     return (
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold">My Notes</h1>
                 <div className="flex items-center space-x-2">
-                    <ThemeToggle />
-                    <NotebookSelector />
-                    <AddNote />
+                    <h1 className="text-3xl font-bold">My Notes</h1>
+                    <SignedOut>
+                            <SignInButton mode={"modal"}>
+                                <Button  >
+                                  Sign In  <LogIn className="h-4 w-4 ml-2" />
+                                </Button>
+                            </SignInButton>
+                    </SignedOut>
+                    <SignedIn>
+                        <UserButton userProfileMode="modal"/>
+                    </SignedIn>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <ThemeToggle/>
+                    <NotebookSelector/>
+                    <AddNote/>
                 </div>
             </div>
 
