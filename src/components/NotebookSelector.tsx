@@ -31,10 +31,10 @@ const NotebookSelector: React.FC = () => {
         }
 
         addNotebook(newNotebookName.trim(), newNotebookColor);
-        setNewNotebookName('');
-        setNewNotebookColor('#FF0000');
+        setNewNotebookName(''); // Reset notebook name
+        setNewNotebookColor('#FF0000'); // Reset color
         setIsNewNotebookDialogOpen(false);
-        toast.info(`Notebook "${newNotebookName.trim()}" has been added.`);
+        toast.success(`Notebook "${newNotebookName.trim()}" has been added.`);
     }, [newNotebookName, newNotebookColor, notebooks, addNotebook]);
 
     const handleEditNotebook = useCallback(() => {
@@ -49,14 +49,14 @@ const NotebookSelector: React.FC = () => {
             return;
         }
 
-        editNotebook(editingNotebook.id, editingNotebook.name.trim(), editingNotebook.color|| "");
+        editNotebook(editingNotebook.id, editingNotebook.name.trim(), editingNotebook.color || "");
         setIsEditNotebookDialogOpen(false);
-        toast.info(`Notebook updated successfully.`);
+        toast.success(`Notebook "${editingNotebook.name}" updated successfully.`);
     }, [editingNotebook, notebooks, editNotebook]);
 
-    const handleDeleteNotebook = useCallback((notebookId: number) => {
+    const handleDeleteNotebook = useCallback((notebookId: string) => {
         deleteNotebook(notebookId);
-        toast.info(`Notebook has been deleted.`);
+        toast.success("Notebook has been deleted.");
     }, [deleteNotebook]);
 
     const startEditing = useCallback((notebook: Notebook) => {

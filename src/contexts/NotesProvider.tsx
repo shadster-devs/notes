@@ -1,25 +1,24 @@
-"use client"
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import {Notebook, Note} from "@/utils/types";
-import {JSONContent} from "novel";
+"use client";
 
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { Notebook, Note } from "@/utils/types";
+import { v4 as uuidv4 } from 'uuid'; // Import uuidv4 for unique IDs
+import { JSONContent } from "novel";
+
+// Define the context type
 type NotesContextType = {
     notebooks: Notebook[];
     notes: Note[];
-    source: 'localStorage' | 'mongo';
-    setSource: (source: 'localStorage' | 'mongo') => void;
-
     currentNotebook: Notebook | null;
-    setCurrentNotebook: (notebook: Notebook |  null) => void;
-    addNotebook: (name: string, color : string) => void;
-    editNotebook: (id: number, name: string, color : string) => void;
-    deleteNotebook: (id: number) => void;
-
-    pinNote: (id: number) => void;
-    moveNote: (id: number, notebookId: number) => void;
-    addNote: (title: string, content: JSONContent, notebookId: number, createdAtUnixTs: number) => void;
-    editNote: (id: number, title: string, content: JSONContent) => void;
-    deleteNote: (id: number) => void;
+    setCurrentNotebook: (notebook: Notebook | null) => void;
+    addNotebook: (name: string, color: string) => void;
+    editNotebook: (id: string, name: string, color: string) => void;
+    deleteNotebook: (id: string) => void;
+    pinNote: (id: string) => void;
+    moveNote: (id: string, notebookId: string) => void;
+    addNote: (title: string, content: JSONContent, notebookId: string, createdAtUnixTs: number) => void;
+    editNote: (id: string, title: string, content: JSONContent) => void;
+    deleteNote: (id: string) => void;
 };
 
 // Default context state
@@ -29,114 +28,199 @@ interface NotesProviderProps {
     children: React.ReactNode;
 }
 
-export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
-
-    const {children} = props;
-
-    const [notebooks, setNotebooks] = useState<Notebook[]>(() => {
-        if (typeof localStorage !== 'undefined') {
-            return JSON.parse(localStorage.getItem('notebooks') || '[]');
-        }
-        return [];
-    });
-
-    const [notes, setNotes] = useState<Note[]>(() => {
-        if (typeof localStorage !== 'undefined') {
-            return JSON.parse(localStorage.getItem('notes') || '[]');
-        }
-        return [];
-    });
-
-    const [source, setSource] = useState<'localStorage' | 'mongo'>('localStorage');
-
+export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
+    const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+    const [notes, setNotes] = useState<Note[]>([]);
     const [currentNotebook, setCurrentNotebook] = useState<Notebook | null>(null);
 
-    const pinNote = (id: number) => {
-        setNotes(notes.map(note => (note.id === id ? { ...note, isPinned: !note.isPinned } : note)));
-    }
+    // Fetch data from MongoDB
+    const fetchFromMongoDB = useCallback(async () => {
+        try {
+            const [notesResponse, notebooksResponse] = await Promise.all([
+                fetch('/api/notes'),
+                fetch('/api/notebooks')
+            ]);
 
-    // Function to load data based on source setting
-    const loadData = useCallback(() => {
-        if (source === 'localStorage') {
+            const notesData = await notesResponse.json();
+            const notebooksData = await notebooksResponse.json();
 
-            if (typeof localStorage === 'undefined') {
-                return;
-            }
-            // Load data from localStorage
-            const storedNotebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
-            const storedNotes = JSON.parse(localStorage.getItem('notes') || '[]');
+            setNotes(notesData.map((note: Note) => ({ ...note, syncStatus: 'synced' })));
+            setNotebooks(notebooksData.map((notebook: Notebook) => ({ ...notebook, syncStatus: 'synced' })));
 
-            setNotebooks(storedNotebooks);
-            setNotes(storedNotes);
+        } catch (error) {
+            console.error("Error fetching data from MongoDB", error);
         }
-    }, [source]);
+    }, []);
 
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
+    // Load data from local storage and then sync with MongoDB
+    const loadLocalStorageData = () => {
+        const storedNotebooks = localStorage.getItem('notebooks');
+        const storedNotes = localStorage.getItem('notes');
 
-    useEffect(() => {
-        setCurrentNotebook((prev) => {
-            return notebooks.find((nb) => nb.id === prev?.id) || notebooks[0];
-        })
-    }, [notebooks]);
-
-    // Helper function to save data to localStorage if source is localStorage
-    const saveDataToLocalStorage = () => {
-        if (source === 'localStorage') {
-            if (typeof localStorage === 'undefined') {
-                return;
-            }
-            localStorage.setItem('notebooks', JSON.stringify(notebooks));
-            localStorage.setItem('notes', JSON.stringify(notes));
+        if (storedNotebooks && storedNotes) {
+            setNotebooks(JSON.parse(storedNotebooks).map((notebook: Notebook) => ({ ...notebook, syncStatus: 'pending' })));
+            setNotes(JSON.parse(storedNotes).map((note: Note) => ({ ...note, syncStatus: 'pending' })));
         }
     };
 
     useEffect(() => {
-        saveDataToLocalStorage();
-    }, [notebooks, notes,saveDataToLocalStorage]);
+        // Load local storage data first for fast access
+        loadLocalStorageData();
+
+        // Fetch fresh data from MongoDB
+        fetchFromMongoDB();
+    }, [fetchFromMongoDB]);
+
+    // Sync function to check if any note or notebook needs to be synced
+    const syncData = useCallback(() => {
+        const unsyncedNotes = notes.filter(note => note.syncStatus === 'pending');
+        const unsyncedNotebooks = notebooks.filter(notebook => notebook.syncStatus === 'pending');
+
+        // Sync notes
+        unsyncedNotes.forEach(async note => {
+            try {
+                const response = await fetch('/api/notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ note }),
+                });
+
+                if (response.ok) {
+                    setNotes(notes.map(n => n.id === note.id ? { ...n, syncStatus: 'synced' } : n));
+                } else {
+                    setNotes(notes.map(n => n.id === note.id ? { ...n, syncStatus: 'failed' } : n));
+                }
+            } catch (error) {
+                setNotes(notes.map(n => n.id === note.id ? { ...n, syncStatus: 'failed' } : n));
+            }
+        });
+
+        // Sync notebooks
+        unsyncedNotebooks.forEach(async notebook => {
+            try {
+                const response = await fetch('/api/notebooks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ notebook }),
+                });
+
+                if (response.ok) {
+                    setNotebooks(notebooks.map(n => n.id === notebook.id ? { ...n, syncStatus: 'synced' } : n));
+                } else {
+                    setNotebooks(notebooks.map(n => n.id === notebook.id ? { ...n, syncStatus: 'failed' } : n));
+                }
+            } catch (error) {
+                setNotebooks(notebooks.map(n => n.id === notebook.id ? { ...n, syncStatus: 'failed' } : n));
+            }
+        });
+    }, [notes, notebooks]);
+
+    // Sync data (notes and notebooks) every second
+    useEffect(() => {
+        const interval = setInterval(() => {
+            syncData();
+        }, 1000); // Sync every second
+        return () => clearInterval(interval);
+    }, [syncData]);
+
+    // Set the current notebook when notebooks are updated
+    useEffect(() => {
+        setCurrentNotebook(prev => notebooks.find(nb => nb.id === prev?.id) || notebooks[0]);
+    }, [notebooks]);
+
+    // Save to local storage whenever notebooks or notes are updated
+    useEffect(() => {
+        localStorage.setItem('notebooks', JSON.stringify(notebooks));
+        localStorage.setItem('notes', JSON.stringify(notes));
+    }, [notebooks, notes]);
 
     // Notebook operations
     const addNotebook = (name: string, color: string) => {
-        const newNotebook = { id: notebooks.length + 1, name ,color};
+        const newNotebook: Notebook = {
+            id: uuidv4(), // Generate unique ID
+            name,
+            color,
+            syncStatus: 'pending', // Mark as pending for sync
+        };
         setNotebooks([...notebooks, newNotebook]);
     };
 
-    const editNotebook = (id: number, name: string, color: string) => {
-        setNotebooks(notebooks.map(nb => (nb.id === id ? { ...nb, name,color } : nb)));
+    const editNotebook = (id: string, name: string, color: string) => {
+        setNotebooks(notebooks.map(nb => (nb.id === id ? { ...nb, name, color, syncStatus: 'pending' } : nb)));
     };
 
-    const deleteNotebook = (id: number) => {
+    const deleteNotebook = async (id: string) => {
+        // Optimistic UI update: Remove notebook and its related notes
         setNotebooks(notebooks.filter(nb => nb.id !== id));
         setNotes(notes.filter(note => note.notebook !== id));
+
+        try {
+            await fetch('/api/notebooks', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id }),
+            });
+        } catch (error) {
+            console.error("Failed to delete notebook", error);
+        }
     };
 
+
     // Note operations
-    const addNote = (title: string, content:JSONContent, notebookId: number,createdAtUnixTs : number) => {
-        const newNote = { id: notes.length + 1, title, content, notebook: notebookId, createdAtUnixTs};
+    const addNote = (title: string, content: JSONContent, notebookId: string, createdAtUnixTs: number) => {
+        const newNote: Note = {
+            id: uuidv4(), // Generate unique ID
+            title,
+            content,
+            notebook: notebookId,
+            createdAtUnixTs,
+            syncStatus: 'pending', // Mark as pending for sync
+        };
         setNotes([...notes, newNote]);
     };
 
-    const editNote = (id: number, title: string, content: JSONContent) => {
-        setNotes(notes.map(note => (note.id === id ? { ...note, title, content } : note)));
+    const editNote = (id: string, title: string, content: JSONContent) => {
+        setNotes(notes.map(note => (note.id === id ? { ...note, title, content, syncStatus: 'pending' } : note)));
     };
 
-    const deleteNote = (id: number) => {
+    const deleteNote = async (id: string) => {
+        // Optimistic UI update
         setNotes(notes.filter(note => note.id !== id));
+
+        try {
+            await fetch('/api/notes', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id }),
+            });
+        } catch (error) {
+            console.error("Failed to delete note", error);
+        }
     };
 
-    const moveNote = (id: number, notebookId: number) => {
-        setNotes(notes.map(note => (note.id === id ? { ...note, notebook: notebookId } : note)));
+
+    const moveNote = (id: string, notebookId: string) => {
+        setNotes(notes.map(note => (note.id === id ? { ...note, notebook: notebookId, syncStatus: 'pending' } : note)));
+    };
+
+    const pinNote = (id: string) => {
+        setNotes(notes.map(note => (note.id === id ? { ...note, isPinned: !note.isPinned, syncStatus: 'pending' } : note)));
     };
 
     return (
         <NotesContext.Provider value={{
-        notebooks,
+            notebooks,
             notes,
-            source,
             currentNotebook,
             setCurrentNotebook,
-            setSource,
             addNotebook,
             editNotebook,
             deleteNotebook,
@@ -145,10 +229,10 @@ export const NotesProvider: React.FC<NotesProviderProps> = (props) => {
             deleteNote,
             pinNote,
             moveNote
-    }}>
-    {children}
-    </NotesContext.Provider>
-);
+        }}>
+            {children}
+        </NotesContext.Provider>
+    );
 };
 
 export const useNotes = () => {
