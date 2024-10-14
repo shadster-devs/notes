@@ -1,10 +1,10 @@
 import React from "react";
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
-import {Plus} from "lucide-react";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
-import {useNotes} from "@/contexts/NotesProvider";
-import {toast} from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useNotes } from "@/contexts/NotesProvider";
+import { toast } from "sonner";
 
 export const defaultEditorContent = {
     type: 'doc',
@@ -14,10 +14,13 @@ export const defaultEditorContent = {
             content: []
         }
     ]
-}
+};
 
 const AddNote: React.FC = () => {
-    const {addNote,currentNotebook} = useNotes();
+    const { addNote, currentNotebook } = useNotes();
+
+    console.log('currentNotebook', currentNotebook?.name);
+
     const [isNewNoteDialogOpen, setIsNewNoteDialogOpen] = React.useState<boolean>(false);
     const [newNoteTitle, setNewNoteTitle] = React.useState<string>('');
 
@@ -28,8 +31,12 @@ const AddNote: React.FC = () => {
         }
 
         addNote(noteTitle, defaultEditorContent, currentNotebook.id, new Date().getTime());
-    };
+        toast.success(`Note "${noteTitle}" added to ${currentNotebook.name}`);
 
+        // Close dialog and reset the input
+        setIsNewNoteDialogOpen(false);
+        setNewNoteTitle('');
+    };
 
     return (
         <Dialog open={isNewNoteDialogOpen} onOpenChange={setIsNewNoteDialogOpen}>
@@ -50,14 +57,17 @@ const AddNote: React.FC = () => {
                     className="mt-2"
                 />
                 <div className={'flex justify-end'}>
-                <Button onClick={()=>{
-                    handleAddNote(newNoteTitle);
-                    setIsNewNoteDialogOpen(false);
-                }} className="mt-4 w-1/3">Create</Button>
+                    <Button
+                        onClick={() => handleAddNote(newNoteTitle)}
+                        className="mt-4 w-1/3"
+                        disabled={!newNoteTitle.trim()} // Disable if note title is empty
+                    >
+                        Create
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>
     );
-}
+};
 
 export default AddNote;

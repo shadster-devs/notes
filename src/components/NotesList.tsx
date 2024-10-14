@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, ChevronUp, ArrowUp, ArrowDown, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ import {
 
 export default function NotesList() {
     const { signOut } = useClerk();
-    const { currentNotebook, notes } = useNotes();
+    const { currentNotebook, notes } = useNotes(); // Get notes and notebooks from context
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
     const [showAllPinned, setShowAllPinned] = useState(false);
@@ -34,6 +33,7 @@ export default function NotesList() {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
 
+    // Filter and sort pinned notes
     const pinnedNotes = useMemo(() => {
         const filtered = showAllPinned
             ? notes.filter(note => note.isPinned)
@@ -42,6 +42,7 @@ export default function NotesList() {
         return sortNotes(filtered);
     }, [notes, showAllPinned, currentNotebook, sortBy, sortOrder]);
 
+    // Filter and sort non-pinned notes
     const filteredNotes = useMemo(() => {
         const filtered = notes.filter(note =>
             note.notebook === currentNotebook?.id &&
@@ -51,6 +52,7 @@ export default function NotesList() {
         return sortNotes(filtered);
     }, [notes, currentNotebook, searchTerm, sortBy, sortOrder]);
 
+    // Sorting function
     function sortNotes(notesToSort: Note[]) {
         return notesToSort.sort((a, b) => {
             if (sortBy === 'title') {
@@ -65,12 +67,13 @@ export default function NotesList() {
         });
     }
 
+    // Handle Sign Out Logic
     const handleSignOut = async () => {
         try {
             await signOut();
             toast.success("You have been signed out.");
-            localStorage.removeItem("notes");
-            localStorage.removeItem("notebooks");
+            localStorage.removeItem("notes"); // Clearing localStorage (Optional)
+            localStorage.removeItem("notebooks"); // Clearing localStorage (Optional)
             window.location.reload();
         } catch (error) {
             toast.error("Error signing out.");
@@ -81,6 +84,7 @@ export default function NotesList() {
 
     return (
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div className="flex items-center space-x-2">
                     <h1 className="text-3xl font-bold">My Notes</h1>
@@ -114,6 +118,7 @@ export default function NotesList() {
                 </div>
             </div>
 
+            {/* Search and Sort Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div className="relative flex-grow">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -149,6 +154,7 @@ export default function NotesList() {
                 </div>
             </div>
 
+            {/* Pinned Notes Section */}
             {pinnedNotes.length > 0 && searchTerm === "" && (
                 <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
@@ -191,6 +197,7 @@ export default function NotesList() {
 
             {pinnedNotes.length > 0 && searchTerm === "" && <Separator className="my-6" />}
 
+            {/* Filtered Notes Section */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -200,8 +207,8 @@ export default function NotesList() {
                     <h2 className="text-xl font-semibold mb-3">
                         {"Search Results"}
                         <span className="text-muted-foreground text-sm ml-2">
-              {filteredNotes.length}
-            </span>
+                            {filteredNotes.length}
+                        </span>
                     </h2>
                 )}
 
