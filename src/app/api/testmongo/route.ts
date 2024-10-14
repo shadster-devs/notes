@@ -13,6 +13,7 @@ export const GET = async () => {
             collections: collections.map(collection => collection.name),
         });
     } catch (error) {
-        return NextResponse.json({ message: 'Failed to connect to MongoDB', error: error.message });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ message: 'Failed to connect to MongoDB', error: errorMessage });
     }
 };
