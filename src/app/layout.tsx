@@ -23,6 +23,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
+        <head>
+            <script defer data-website-id="670cf16bbb172ebbfe357d6e"
+                    data-domain="notes-opal-phi.vercel.app"
+                    src="https://datafa.st/js/script.js"></script>
+        </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
