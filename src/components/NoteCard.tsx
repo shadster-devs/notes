@@ -70,7 +70,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
                                     title={'Open Note'}
                                     className={'flex-1 text-lg font-bold justify-start px-2 truncate hover:border-2'}
                                     onClick={() => {
-                                        router.push(`/${note.id}`);
+                                        router.push(`/notes/${note.id}`);
                                     }}
                                 >
                                     <div className={'w-3 h-3 rounded-full mr-2'} style={{backgroundColor: backgroundColor}}/>
