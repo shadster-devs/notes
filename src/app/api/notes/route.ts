@@ -15,7 +15,7 @@ export async function GET() {
         }).toArray();
         return NextResponse.json(notes);
     } catch (error) {
-        return NextResponse.json({ error: error.message });
+        return NextResponse.json({ error: "Failed to get notes" });
     }
 }
 
