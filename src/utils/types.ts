@@ -2,18 +2,20 @@
 import { JSONContent } from "novel";
 
 export type Notebook = {
-    id: string; // MongoDB ObjectId in string format
+    id: string;
     name: string;
+    userId : string;
     color?: string;
-    syncStatus: 'synced' | 'pending' | 'failed'; // To track sync status
+    syncStatus: 'synced' | 'pending' | 'failed';
 };
 
 export type Note = {
-    id: string; // MongoDB ObjectId in string format
+    id: string;
     isPinned?: boolean;
     title: string;
     content: JSONContent;
-    notebook: string; // Refers to Notebook id
+    userId : string;
+    notebook: string;
     createdAtUnixTs: number;
-    syncStatus: 'synced' | 'pending' | 'failed'; // To track sync status
+    syncStatus: 'synced' | 'pending' | 'failed';
 };

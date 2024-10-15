@@ -2,16 +2,20 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { Note } from '@/utils/types';
+import {currentUser} from "@clerk/nextjs/server";
 
 // Fetch all notes
 export async function GET() {
     try {
+        const user = await currentUser();
         const client = await clientPromise;
         const db = client.db("notes-app"); // Replace with your DB name
-        const notes = await db.collection("notes").find({}).toArray();
+        const notes = await db.collection("notes").find({
+            userId: user?.id
+        }).toArray();
         return NextResponse.json(notes);
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch notes' });
+        return NextResponse.json({ error: error.message });
     }
 }
 

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { Notebook, Note } from "@/utils/types";
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4 for unique IDs
 import { JSONContent } from "novel";
+import {useUser} from "@clerk/nextjs";
 
 // Define the context type
 type NotesContextType = {
@@ -29,6 +30,9 @@ interface NotesProviderProps {
 }
 
 export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
+
+    const {user} = useUser();
+
     const [notebooks, setNotebooks] = useState<Notebook[]>([]);
     const [notes, setNotes] = useState<Note[]>([]);
     const [currentNotebook, setCurrentNotebook] = useState<Notebook | null>(null);
@@ -44,8 +48,19 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
             const notesData = await notesResponse.json();
             const notebooksData = await notebooksResponse.json();
 
-            setNotes(notesData.map((note: Note) => ({ ...note, syncStatus: 'synced' })));
-            setNotebooks(notebooksData.map((notebook: Notebook) => ({ ...notebook, syncStatus: 'synced' })));
+            if (notesData.error || notebooksData.error) {
+                console.error("Failed to fetch data from MongoDB");
+                return;
+            }
+
+            if (notesData.length === 0 && notebooksData.length === 0) {
+                return;
+            }
+
+
+
+            if (notesData.length) setNotes(notesData.map((note: Note) => ({ ...note, syncStatus: 'synced' })));
+            if (notebooksData.length) setNotebooks(notebooksData.map((notebook: Notebook) => ({ ...notebook, syncStatus: 'synced' })));
 
         } catch (error) {
             console.error("Error fetching data from MongoDB", error);
@@ -138,13 +153,13 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
         localStorage.setItem('notes', JSON.stringify(notes));
     }, [notebooks, notes]);
 
-    // Notebook operations
     const addNotebook = (name: string, color: string) => {
         const newNotebook: Notebook = {
-            id: uuidv4(), // Generate unique ID
+            id: uuidv4(),
+            userId: user.id,
             name,
             color,
-            syncStatus: 'pending', // Mark as pending for sync
+            syncStatus: 'pending',
         };
         setNotebooks([...notebooks, newNotebook]);
     };
@@ -175,12 +190,13 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     // Note operations
     const addNote = (title: string, content: JSONContent, notebookId: string, createdAtUnixTs: number) => {
         const newNote: Note = {
-            id: uuidv4(), // Generate unique ID
+            id: uuidv4(),
             title,
+            userId: user.id,
             content,
             notebook: notebookId,
             createdAtUnixTs,
-            syncStatus: 'pending', // Mark as pending for sync
+            syncStatus: 'pending',
         };
         setNotes([...notes, newNote]);
     };

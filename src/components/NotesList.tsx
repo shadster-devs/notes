@@ -15,7 +15,7 @@ import NoteCard from "./NoteCard";
 import AddNote from "@/components/AddNote";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Note } from "@/utils/types";
-import { SignedIn, useClerk } from "@clerk/nextjs";
+import {SignedIn, useClerk, UserButton} from "@clerk/nextjs";
 import { toast } from "sonner";
 import {
     AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function NotesList() {
-    const { signOut } = useClerk();
+    const { signOut} = useClerk();
     const { currentNotebook, notes } = useNotes(); // Get notes and notebooks from context
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
@@ -87,7 +87,7 @@ export default function NotesList() {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div className="flex items-center space-x-2">
-                    <h1 className="text-3xl font-bold">My Notes</h1>
+                    <h1 className="text-3xl font-bold items-center justify-center flex gap-4"><UserButton/> Notes</h1>
                     <SignedIn>
                         <AlertDialog open={isSignOutDialogOpen} onOpenChange={setIsSignOutDialogOpen}>
                             <AlertDialogTrigger asChild>
