@@ -154,6 +154,8 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     }, [notebooks, notes]);
 
     const addNotebook = (name: string, color: string) => {
+        if (!user) return;
+
         const newNotebook: Notebook = {
             id: uuidv4(),
             userId: user.id,
@@ -189,6 +191,8 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
 
     // Note operations
     const addNote = (title: string, content: JSONContent, notebookId: string, createdAtUnixTs: number) => {
+        if (!user) return;
+
         const newNote: Note = {
             id: uuidv4(),
             title,
